@@ -10,3 +10,12 @@ variable "group_detail" {
 
   default = []
 }
+
+variable "users" {
+    description=""
+    type = list(object({
+        group_name = string
+        users_name = list(string)
+    }))
+    default = []
+}

@@ -8,7 +8,7 @@ provider "aws" {
 }
 
 module "iam_policies" {
-  source = "../../modules/iam_policies"
+  source             = "../../modules/iam_policies"
   should_require_mfa = true
 }
 
@@ -20,11 +20,16 @@ The key of the map is <policy_name> and the value of the map is a policy documen
 module "iam_groups" {
   source = "../../modules/iam_groups"
   group_detail = [
-      {
-          group_name = "full_access",
-          policy_name = "AdministratorAccess",
-          policy_description = "Same as AWS Managed AdministratorAccess, but can config with MFA",
-          policy_doc = module.iam_policies.policy_map["AdministratorAccess"]
-      }
+    {
+      group_name         = "full_access",
+      policy_name        = "AdministratorAccess",
+      policy_description = "Same as AWS Managed AdministratorAccess, but can config with MFA",
+      policy_doc         = module.iam_policies.policy_map["AdministratorAccess"]
+    }
   ]
+
+  users = [{
+    group_name = "full_access"
+    users_name = ["Tony", "Jane", "Jack"]
+  }]
 }
