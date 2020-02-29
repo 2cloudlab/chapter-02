@@ -1,3 +1,3 @@
-output "group_arn" {
-    value = aws_iam_group.group.arn
+output "group_obj" {
+    value = aws_iam_group.group
 }

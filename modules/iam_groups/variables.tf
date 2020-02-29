@@ -1,19 +1,12 @@
-variable "group_name" {
-  description = "The name of IAM group"
-  type        = string
-}
 
-variable "policy_name" {
-  description = "The name of IAM policy"
-  type        = string
-}
+variable "group_detail" {
+  description = "creating multiple groups"
+  type = list(object({
+    group_name  = string
+    policy_name = string
+    policy_description = string
+    policy_doc = string
+  }))
 
-variable "policy_description" {
-  description = "The description of IAM policy"
-  type        = string
-}
-
-variable "policy_doc" {
-    description = "policy document which is attached to group"
-    type = string
+  default = []
 }
