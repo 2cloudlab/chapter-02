@@ -58,6 +58,11 @@ locals {
     mfa_condition_block = var.should_require_mfa ? [{"test"="Bool","variable"="aws:MultiFactorAuthPresent","values"=[true,]}] : []
 }
 
+/*
+Create full_access policy.
+
+This policy will give admin permissions to user. Attach it to group and add user to that group 
+*/
 data "aws_iam_policy_document" "full_access" {
   statement {
     sid = "FullAccess"
@@ -79,30 +84,86 @@ data "aws_iam_policy_document" "full_access" {
         }
     }
   }
-}
 
-/*
-condition {
-        test = "Bool"
-        variable = "aws:MultiFactorAuthPresent"
-        values = [
-            true,
-        ]
+  # This permission must be in its own statement because it does not support specifying a resource ARN. Instead you must specify "Resource" : "*"
+  statement {
+    sid = "AllowViewDetailVirtualMFADevicesInfo"
+
+    effect = "Allow"
+
+    actions = [
+      "iam:ListVirtualMFADevices",
+    ]
+
+    resources = [
+      "*"
+    ]
+  }
+
+  statement {
+    sid = "AllowManageOwnVirtualMFADevice"
+
+    effect = "Allow"
+
+    actions = [
+      "iam:CreateVirtualMFADevice",
+      "iam:DeleteVirtualMFADevice"
+    ]
+
+    resources = [
+      "arn:aws:iam::*:mfa/&{aws:username}"
+    ]
+  }
+
+  statement {
+    sid = "AllowIndividualUserToSeeAndManageOnlyTheirOwnAccountInformation"
+
+    effect = "Allow"
+
+    actions = [
+      "iam:ChangePassword",
+      "iam:DeactivateMFADevice",
+      "iam:EnableMFADevice",
+      "iam:GetUser",
+      "iam:ListMFADevices",
+      "iam:ResyncMFADevice"
+    ]
+
+    resources = [
+      "arn:aws:iam::*:user/&{aws:username}"
+    ]
+  }
+  
+  statement {
+    sid = "BlockMostAccessUnlessSignedInWithMFA"
+
+    effect = "Deny"
+    # force user to the listed actions if he/she does not provide MFA code.
+    # This statement ensures that when the user is not signed in with MFA, they can perform only the listed actions.
+    # In addition, they can perform the listed actions only if another statement or policy allows access to those actions.
+    not_actions = [
+      "iam:ChangePassword", # force user who login first time can change password
+      "iam:DeleteVirtualMFADevice", # add this action in case user partially adds MFA device but quit to do other thing
+      "iam:CreateVirtualMFADevice",
+      "iam:EnableMFADevice",
+      "iam:GetUser",
+      "iam:ListMFADevices",
+      "iam:ListVirtualMFADevices",
+      "iam:ResyncMFADevice",
+      "sts:GetSessionToken"
+    ]
+
+    resources = [
+      "*"
+    ]
+
+    condition {
+      test = "BoolIfExists"
+      variable = "aws:MultiFactorAuthPresent"
+
+      values = [
+        "false",
+      ]
     }
-*/
-#
-#
-# create group with inline policy
-
-/*
-resource "aws_iam_group" "developers" {
-  name = "developers"
+  }
 }
-
-resource "aws_iam_group_policy" "my_developer_policy" {
-  name  = "my_developer_policy"
-  group = aws_iam_group.developers.id
-
-  policy = data.aws_iam_policy_document.full_access.json
-}
-*/

@@ -28,8 +28,13 @@ module "iam_groups" {
     }
   ]
 
-  users = [{
+  user_groups = [{
     group_name = "full_access"
-    users_name = ["Tony", "Jane", "Jack"]
+    user_profiles = [
+        {
+            user_name = "Tony",
+            pgp_key = "keybase:freshairfreshliv"
+        },
+    ]
   }]
 }

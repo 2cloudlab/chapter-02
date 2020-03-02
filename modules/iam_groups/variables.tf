@@ -11,11 +11,14 @@ variable "group_detail" {
   default = []
 }
 
-variable "users" {
+variable "user_groups" {
     description=""
     type = list(object({
         group_name = string
-        users_name = list(string)
+        user_profiles = list(object({
+            pgp_key = string
+            user_name = string
+            }))
     }))
     default = []
 }
