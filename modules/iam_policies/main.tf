@@ -56,35 +56,17 @@ locals {
         "AdministratorAccess" = data.aws_iam_policy_document.full_access.json,
     }
     mfa_condition_block = var.should_require_mfa ? [{"test"="Bool","variable"="aws:MultiFactorAuthPresent","values"=[true,]}] : []
+    first_time_login_without_mfa_json = var.should_require_mfa ? data.aws_iam_policy_document.first_time_login_without_mfa_base.json : data.aws_iam_policy_document.disable_mfa.json
 }
 
-/*
-Create full_access policy.
+# Empty policy which is used for disable mfa
+data "aws_iam_policy_document" "disable_mfa" {
 
-This policy will give admin permissions to user. Attach it to group and add user to that group 
-*/
-data "aws_iam_policy_document" "full_access" {
-  statement {
-    sid = "FullAccess"
-      
-    actions = [
-      "*",
-    ]
+}
 
-    resources = [
-      "*",
-    ]
-
-    dynamic "condition" {
-        for_each = local.mfa_condition_block
-        content{
-            test = condition.value["test"]
-            variable = condition.value["variable"]
-            values = condition.value["values"]
-        }
-    }
-  }
-
+# first-time login with MFA base policy which should be specified to each other policy document
+# when user login to AWS first time, this policy will be in effect, which force he/she to add MFA device
+data "aws_iam_policy_document" "first_time_login_without_mfa_base" {
   # This permission must be in its own statement because it does not support specifying a resource ARN. Instead you must specify "Resource" : "*"
   statement {
     sid = "AllowViewDetailVirtualMFADevicesInfo"
@@ -150,6 +132,9 @@ data "aws_iam_policy_document" "full_access" {
       "iam:ListMFADevices",
       "iam:ListVirtualMFADevices",
       "iam:ResyncMFADevice",
+      # No permissions are required for a user to get a session token.
+      # The purpose of the GetSessionToken operation is to authenticate the user using MFA.
+      # You cannot use policies to control authentication operations.
       "sts:GetSessionToken"
     ]
 
@@ -165,5 +150,67 @@ data "aws_iam_policy_document" "full_access" {
         "false",
       ]
     }
+  }
+}
+
+/*
+Create full_access policy.
+
+This policy will give admin permissions to user. Attach it to group and add user to that group 
+*/
+data "aws_iam_policy_document" "full_access" {
+  source_json = local.first_time_login_without_mfa_json
+  statement {
+    sid = "FullAccess"
+      
+    actions = [
+      "*",
+    ]
+
+    resources = [
+      "*",
+    ]
+    
+    dynamic "condition" {
+        for_each = local.mfa_condition_block
+        content {
+            test = condition.value["test"]
+            variable = condition.value["variable"]
+            values = condition.value["values"]
+        }
+    }
+  }
+}
+
+
+// trust policy for roles
+data "aws_iam_policy_document" "instance_assume_role_policy" {
+    for_each = var.role_policies
+
+    statement {
+        sid = "AssumeRole"
+        actions = ["sts:AssumeRole"]
+        
+        principals {
+            type = each.value.type
+            identifiers = each.value.identifiers
+        }
+        
+        dynamic "condition" {
+            for_each = local.mfa_condition_block
+            content {
+                test = condition.value["test"]
+                variable = condition.value["variable"]
+                values = condition.value["values"]
+            }
+        }
+    }
+}
+
+//permission policy for roles
+data "aws_iam_policy_document" "iam_policy_for_role" {
+    statement {
+        sid = "IAMPolicy"
+        actions = ["iam:ListUsers"]
   }
 }

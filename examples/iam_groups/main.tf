@@ -31,10 +31,25 @@ module "iam_groups" {
   user_groups = [{
     group_name = "full_access"
     user_profiles = [
-        {
-            user_name = "Tony",
-            pgp_key = "keybase:freshairfreshliv"
-        },
+      {
+        user_name = "Tony",
+        pgp_key   = "keybase:freshairfreshliv"
+      },
     ]
   }]
+}
+
+//create role
+module "iam_roles" {
+  source = "../../modules/iam_roles"
+  role_policies = {
+    full_access_role = {
+      type                   = "AWS"
+      identifiers            = ["account 1", "account 2"]
+      assume_role_policy     = ""
+      iam_policy_name        = "full_access"
+      iam_policy_description = "full access description"
+      iam_policy             = ""
+    }
+  }
 }
