@@ -1,6 +1,15 @@
 output "policy_map" {
     value = local.policy_map
 }
+
+output "role_policies_map" {
+    value = {
+      for key, value in local.role_policies_map:
+      key => merge(value, {
+        assume_role_policy = data.aws_iam_policy_document.instance_assume_role_policies[key].json
+      })
+    }
+}
 /*
 output "billing" {
   value = data.aws_iam_policy_document.billing.json

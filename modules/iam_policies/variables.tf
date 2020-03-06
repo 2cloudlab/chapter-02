@@ -3,3 +3,8 @@ variable "should_require_mfa" {
   type        = bool
   default = true
 }
+
+variable "read_only_access_identifiers" {
+  type = list(string)
+  default = []
+}

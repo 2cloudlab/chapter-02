@@ -10,6 +10,7 @@ provider "aws" {
 module "iam_policies" {
   source             = "../../modules/iam_policies"
   should_require_mfa = true
+  read_only_access_identifiers = ["account 1"]
 }
 
 /*
@@ -42,14 +43,5 @@ module "iam_groups" {
 //create role
 module "iam_roles" {
   source = "../../modules/iam_roles"
-  role_policies = {
-    full_access_role = {
-      type                   = "AWS"
-      identifiers            = ["account 1", "account 2"]
-      assume_role_policy     = ""
-      iam_policy_name        = "full_access"
-      iam_policy_description = "full access description"
-      iam_policy             = ""
-    }
-  }
+  role_policies = module.iam_policies.role_policies_map
 }

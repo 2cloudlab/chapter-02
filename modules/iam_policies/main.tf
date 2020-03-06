@@ -183,9 +183,23 @@ data "aws_iam_policy_document" "full_access" {
 }
 
 
+locals {
+  role_policies_map = {
+    read_only_access = {
+      type = "AWS"
+      identifiers = var.read_only_access_identifiers
+      iam_policy_name        = "read_only_access"
+      iam_policy_description = "read only access description"
+      iam_policy = data.aws_iam_policy.read_only_access_iam_policy_for_role.policy
+    }
+  }
+}
+
+
 // trust policy for roles
-data "aws_iam_policy_document" "instance_assume_role_policy" {
-    for_each = var.role_policies
+// generating by permission policies
+data "aws_iam_policy_document" "instance_assume_role_policies" {
+    for_each = local.role_policies_map
 
     statement {
         sid = "AssumeRole"
@@ -207,10 +221,29 @@ data "aws_iam_policy_document" "instance_assume_role_policy" {
     }
 }
 
-//permission policy for roles
-data "aws_iam_policy_document" "iam_policy_for_role" {
-    statement {
-        sid = "IAMPolicy"
-        actions = ["iam:ListUsers"]
-  }
+// an IAM policy which is attached to group, this group is used for assuming role in other accounts
+data "aws_iam_policy_document" "iam_policy_attach_to_group" {
+  statement {
+        sid = "AssumeRole"
+        actions = ["sts:AssumeRole"]
+        
+        principals {
+            type = each.value.type
+            identifiers = each.value.identifiers
+        }
+        
+        dynamic "condition" {
+            for_each = local.mfa_condition_block
+            content {
+                test = condition.value["test"]
+                variable = condition.value["variable"]
+                values = condition.value["values"]
+            }
+        }
+    }
+}
+
+//read only access policy for roles
+data "aws_iam_policy" "read_only_access_iam_policy_for_role" {
+  arn = "arn:aws:iam::aws:policy/ReadOnlyAccess"
 }
