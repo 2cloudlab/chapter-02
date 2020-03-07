@@ -7,28 +7,13 @@ provider "aws" {
   region  = "us-east-2"
 }
 
-module "iam_policies" {
-  source             = "../../modules/iam_policies"
+//create role
+module "iam_across_account_assistant" {
+  source        = "../../modules/iam_across_account_assistant"
+  allow_read_only_access_from_other_account_arns = []
   should_require_mfa = true
-  read_only_access_identifiers = ["account 1"]
-}
-
-/*
-Create an IAM group and attach a policy to it.
-<policy_doc> is retrived from iam_policies module which defines a map of policy documents.
-The key of the map is <policy_name> and the value of the map is a policy document.
-*/
-module "iam_groups" {
-  source = "../../modules/iam_groups"
-  group_detail = [
-    {
-      group_name         = "full_access",
-      policy_name        = "AdministratorAccess",
-      policy_description = "Same as AWS Managed AdministratorAccess, but can config with MFA",
-      policy_doc         = module.iam_policies.policy_map["AdministratorAccess"]
-    }
-  ]
-
+  across_account_access_role_arns_by_group = {}
+  should_create_iam_group_full_access = true
   user_groups = [{
     group_name = "full_access"
     user_profiles = [
@@ -36,12 +21,10 @@ module "iam_groups" {
         user_name = "Tony",
         pgp_key   = "keybase:freshairfreshliv"
       },
+      {
+        user_name = "Jimmy",
+        pgp_key   = "keybase:freshairfreshliv"
+      }
     ]
   }]
-}
-
-//create role
-module "iam_roles" {
-  source = "../../modules/iam_roles"
-  role_policies = module.iam_policies.role_policies_map
 }

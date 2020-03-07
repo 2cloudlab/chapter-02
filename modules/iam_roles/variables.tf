@@ -9,14 +9,5 @@ variable "role_policies" {
         iam_policy = string
     }))
 
-    default = {
-        full_access_role = {
-            type = "AWS"
-            identifiers = ["account 1", "account 2"]
-            assume_role_policy = ""
-            iam_policy_name = "full_access"
-            iam_policy_description = "full access description"
-            iam_policy = ""
-        }
-    }
+    default = {}
 }

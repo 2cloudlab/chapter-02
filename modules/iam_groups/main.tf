@@ -2,26 +2,19 @@ terraform {
     required_version = "= 0.12.19"
 }
 
-locals {
-  group_map = {
-    for value in var.group_detail:
-    value.group_name => value
-  }
-}
-
 /*
 create multiple IAM groups.
 */
 
 # create multiple IAM groups
 resource "aws_iam_group" "groups" {
-  for_each = local.group_map
-  name = each.value.group_name
+  for_each = var.self_account_groups
+  name = each.key
 }
 
 # create custom managed policies
 resource "aws_iam_policy" "custom_managed_policy" {
-  for_each = local.group_map
+  for_each = var.self_account_groups
   name        = each.value.policy_name
   description = each.value.policy_description
   policy      = each.value.policy_doc
@@ -29,7 +22,7 @@ resource "aws_iam_policy" "custom_managed_policy" {
 
 # create attachment, it will attach policy to corresponsd group without affecting existed policies
 resource "aws_iam_group_policy_attachment" "group_attachment" {
-  for_each = local.group_map
+  for_each = var.self_account_groups
   group      = aws_iam_group.groups[each.key].name
   policy_arn = aws_iam_policy.custom_managed_policy[each.key].arn
 }
@@ -38,18 +31,17 @@ resource "aws_iam_group_policy_attachment" "group_attachment" {
 #
 # create group with inline policy
 
-/*
-resource "aws_iam_group" "developers" {
-  name = "developers"
+resource "aws_iam_group" "across_account_groups" {
+  for_each = var.across_account_groups
+  name = each.key
 }
 
-resource "aws_iam_group_policy" "my_developer_policy" {
-  name  = "my_developer_policy"
-  group = aws_iam_group.developers.id
+resource "aws_iam_group_policy" "inline_policis" {
+  for_each = var.across_account_groups
+  group = aws_iam_group.across_account_groups[each.key].id
 
-  policy = data.aws_iam_policy_document.full_access.json
+  policy = each.value
 }
-*/
 
 
 /*

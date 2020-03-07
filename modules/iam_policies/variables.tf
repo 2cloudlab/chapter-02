@@ -4,7 +4,12 @@ variable "should_require_mfa" {
   default = true
 }
 
-variable "read_only_access_identifiers" {
+variable "allow_read_only_access_from_other_account_arns" {
   type = list(string)
   default = []
+}
+
+variable "across_account_access_role_arns_by_group" {
+  type = map(list(string))
+  default = {}
 }
