@@ -18,6 +18,12 @@ variable "should_create_iam_group_full_access" {
   default = false
 }
 
+variable "should_create_iam_group_billing" {
+  type = bool
+  default = false
+}
+
+
 variable "user_groups" {
     description=""
     type = list(object({

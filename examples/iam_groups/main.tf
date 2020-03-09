@@ -10,12 +10,13 @@ provider "aws" {
 //create role
 module "iam_across_account_assistant" {
   source        = "../../modules/iam_across_account_assistant"
-  allow_read_only_access_from_other_account_arns = ["role arn"]
-  should_require_mfa = true
+  allow_read_only_access_from_other_account_arns = []
+  should_require_mfa = false
   across_account_access_role_arns_by_group = {}
-  should_create_iam_group_full_access = true
+  should_create_iam_group_full_access = false
+  should_create_iam_group_billing = true
   user_groups = [{
-    group_name = "full_access"
+    group_name = "billing"
     user_profiles = [
       {
         user_name = "Tony",

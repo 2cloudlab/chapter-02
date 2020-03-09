@@ -1,9 +1,9 @@
 output "policy_map" {
-    value = local.output_policy_map
+  value = local.output_policy_map
 }
 
 output "role_policies_map" {
-    value = local.output_role_policies_map
+  value = local.output_role_policies_map
 }
 
 output "group_assume_policies_map" {

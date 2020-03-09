@@ -8,6 +8,10 @@ locals {
       iam_policy = module.iam_policies.policy_map["AdministratorAccess"]
       should_created = var.should_create_iam_group_full_access
     }
+    billing = {
+      iam_policy = module.iam_policies.policy_map["Billing"]
+      should_created = var.should_create_iam_group_billing
+    }
   }
 }
 
