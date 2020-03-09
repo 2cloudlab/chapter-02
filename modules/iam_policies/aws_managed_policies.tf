@@ -37,7 +37,12 @@ locals {
   output_policy_map = {
     for k, v in local.aws_managed_policies_details :
     k => merge(
-      v, {
+      { 
+          for name, value in v :
+          name => value
+          if name != "policy_arn"
+      }, 
+      {
         policy_doc = data.aws_iam_policy_document.aws_managed_policies_with_mfa_option[k].json
     })
   }
@@ -52,22 +57,4 @@ data "aws_iam_policy_document" "aws_managed_policies_with_mfa_option" {
   source_json   = local.first_time_login_without_mfa_json
   override_json = each.value
 }
-
-/*
-Create full_access policy.
-
-This policy will give admin permissions to user. Attach it to group and add user to that group 
-
-data "aws_iam_policy_document" "full_access" {
-  source_json   = local.first_time_login_without_mfa_json
-  override_json = local.aws_managed_policies["AdministratorAccess"]
-}
-
-data "aws_iam_policy_document" "billing_access" {
-  source_json   = local.first_time_login_without_mfa_json
-  override_json = local.aws_managed_policies["Billing"]
-}
-*/
-
-// aws managed billing policy
 
