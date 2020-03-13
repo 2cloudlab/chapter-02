@@ -85,4 +85,6 @@ module "iam_policies" {
 }
 ```
 
-In addition to **AWS managed policies** and **Custom managed policies**, the code above will create a permissions policy named `read_only_policy` and a trust policy paired with it.
+In addition to **AWS managed policies** and **Custom managed policies**, the code above will create a permissions policy named `read_only_policy` and a trust policy pairing with it. All policies are configed with MFA option.
+
+The iam policy module can be combined with other modules such as [iam_groups](../iam_groups), [iam_roles](../iam_roles) etc. You can refer to module [iam_across_account_assistant](../iam_across_account_assistant) and learn how to combine them to help you build across accounts strategy.
