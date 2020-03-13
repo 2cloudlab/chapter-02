@@ -47,7 +47,9 @@ Policies in this group are attached to IAM roles. Each policy is paired with eac
 
 ## How to use?
 
-The best way to use this moudle is shown below:
+The best ways to use this module are shown below:
+
+1. Create **AWS managed policies**, **Custom managed policies** and **Assume role policies for group**
 
 ```terraform
 # main.tf
@@ -65,4 +67,22 @@ module "iam_policies" {
 }
 ```
 
- The code above will create all policies in groups **AWS managed policies** and **Custom managed policies**. Instead, a group called **dev_account_read_only_access** will be created, users in this group allow assume role named read_only_access in the account 120699691161. All policies are configed with MFA option.
+ The code above will create all policies in groups **AWS managed policies** and **Custom managed policies**. Instead, an inline policy with `sts:AssumeRole` action to `read_only_access` role in account 120699691161 will be created. This inline policy will be attached to a group named **dev_account_read_only_access**. All policies are configed with MFA option.
+
+ 2. Create **AWS managed policies**, **Custom managed policies**, **Trust policies for role** and **Permissions policies for role**
+
+ ```terraform
+# main.tf
+
+module "iam_policies" {
+  # Make sure to replace <VERSION> in this URL with the latest iam_policies release
+  source = "git@github.com:2cloudlab/module_security.git//modules/iam_policies?ref=<VERSION>"
+  should_require_mfa       = true
+  allow_read_only_access_from_other_account_arns = 
+  [
+      "123456789012",
+  ]
+}
+```
+
+In addition to **AWS managed policies** and **Custom managed policies**, the code above will create a permissions policy named `read_only_policy` and a trust policy paired with it.
