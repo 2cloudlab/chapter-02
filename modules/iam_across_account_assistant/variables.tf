@@ -1,4 +1,5 @@
 variable "allow_read_only_access_from_other_account_arns" {
+  description = ""
   type    = list(string)
   default = []
 }
