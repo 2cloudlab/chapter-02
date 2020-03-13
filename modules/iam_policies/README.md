@@ -7,4 +7,6 @@ This module will create 4 groups of policies, as shown below:
 3. Trust policy for role
 4. Assume policy for group
 
-This module will not
+This module only provide policies in json format, so it will only pull policy resources from AWS Web Service.
+
+All polices that attach to IAM Group can config with 
