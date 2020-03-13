@@ -44,3 +44,25 @@ Policies in this group are attached to IAM group. Each policy allow access in on
 Policies in this group are attached to IAM roles. Each policy is paired with each trust policy in **Trust policies for role** group. These policies are generated without MFA option. The following policies are generated:
 
 * **read_only_access:** user who assumes the role attached by this policy only allow read-only access in the account containing the role
+
+## How to use?
+
+The best way to use this moudle is shown below:
+
+```terraform
+# main.tf
+
+module "iam_policies" {
+  # Make sure to replace <VERSION> in this URL with the latest iam_policies release
+  source = "git@github.com:2cloudlab/module_security.git//modules/iam_policies?ref=<VERSION>"
+  should_require_mfa       = true
+  across_account_access_role_arns_by_group         = 
+  {
+      dev_account_read_only_access = [
+          "arn:aws:iam::120699691161:role/read_only_access",
+      ]
+  }
+}
+```
+
+ The code above will create all policies in groups **AWS managed policies** and **Custom managed policies**. Instead, a group called **dev_account_read_only_access** will be created, users in this group allow assume role named read_only_access in the account 120699691161. All policies are configed with MFA option.
