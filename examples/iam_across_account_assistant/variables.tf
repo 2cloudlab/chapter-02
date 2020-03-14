@@ -1,11 +1,11 @@
-variable "allow_read_only_access_from_other_account_arns" {
-  type    = list(string)
-  default = []
-}
-
 variable "should_require_mfa" {
   type    = bool
   default = true
+}
+
+variable "allow_read_only_access_from_other_account_arns" {
+  type    = list(string)
+  default = []
 }
 
 variable "across_account_access_role_arns_by_group" {
@@ -13,7 +13,24 @@ variable "across_account_access_role_arns_by_group" {
   default = {}
 }
 
-variable "should_create_iam_group_full_access" {
-  type    = bool
-  default = false
+variable "user_groups" {
+  type    = list(object({
+        group_name = string
+        user_profiles = list(object({
+            pgp_key = string
+            user_name = string
+            }))
+    }))
+  default = []
+  /*
+  [{
+    group_name = "billing"
+    user_profiles = [
+      {
+        user_name = "Jim",
+        pgp_key   = "keybase:freshairfreshliv"
+      }
+    ]
+  }]
+  */
 }
