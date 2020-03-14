@@ -13,13 +13,11 @@ module "iam_across_account_assistant" {
   allow_read_only_access_from_other_account_arns = []
   should_require_mfa = true
   across_account_access_role_arns_by_group = {}
-  should_create_iam_group_full_access = true
-  should_create_iam_group_billing = false
   user_groups = [{
-    group_name = "full_access"
+    group_name = "billing"
     user_profiles = [
       {
-        user_name = "Tony",
+        user_name = "Jim",
         pgp_key   = "keybase:freshairfreshliv"
       }
     ]

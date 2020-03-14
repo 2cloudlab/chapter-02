@@ -1,11 +1,11 @@
-output "group_obj" {
-  value = module.iam_groups.group_obj
-}
-
 output "user_login_keys" {
   value = module.iam_groups.user_login_keys
 }
 
-output "policy_doc" {
-  value = module.iam_policies.policy_map["AdministratorAccess"]
+output "group_2_role_map" {
+  value = module.iam_roles.roles_map
+}
+
+output "name_of_group_arr" {
+  value = module.iam_groups.name_of_group_arr
 }

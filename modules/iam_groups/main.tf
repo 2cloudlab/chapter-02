@@ -60,14 +60,16 @@ locals{
       ]
     ]):
     user.user_name => { 
-      "group_name" = user.group_name,
-      "pgp_key" = user.pgp_key
+      group_name = user.group_name,
+      pgp_key = user.pgp_key
     }
   }
 }
 
 resource "aws_iam_user" "users" {
   for_each = local.user_profile_group_map
+  //When destroying this user, destroy even if it has non-Terraform-managed IAM access keys, login profile or MFA devices. Without force_destroy a user with non-Terraform-managed access keys and login profile will fail to be destroyed.
+  force_destroy = true
   name = each.key
 }
 
