@@ -1,13 +1,13 @@
 package test
 
 import (
+	"fmt"
 	"path/filepath"
 	"testing"
-	"fmt"
 
+	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/gruntwork-io/terratest/modules/test-structure"
-	"github.com/gruntwork-io/terratest/modules/random"
 )
 
 func TestIntegrationIAM2Groups(t *testing.T) {
@@ -22,8 +22,11 @@ func TestIntegrationIAM2Groups(t *testing.T) {
 		{
 			"group_name": "full_access",
 			"user_profiles": []map[string]interface{}{
-				"pgp_key":   fmt.Sprintf("pgp-%s", random.UniqueId()),
-				"user_name": fmt.Sprintf("username-%s", random.UniqueId()),
+				{
+					//Use random.UniqueId() to make input value uniqued!
+					"pgp_key":   fmt.Sprintf("pgp-%s", random.UniqueId()),
+					"user_name": fmt.Sprintf("username-%s", random.UniqueId()),
+				},
 			},
 		},
 	}
