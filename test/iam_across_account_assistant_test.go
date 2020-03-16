@@ -10,6 +10,8 @@ import (
 	"github.com/gruntwork-io/terratest/modules/test-structure"
 	"github.com/gruntwork-io/terratest/modules/aws"
 	"github.com/aws/aws-sdk-go/service/iam"
+
+	"github.com/stretchr/testify/assert"
 )
 
 //Create full_access group with admin permissions and config with MFA option
@@ -29,7 +31,7 @@ func TestIntegrationIAM2Groups(t *testing.T) {
 			"user_profiles": []map[string]interface{}{
 				{
 					//Use random.UniqueId() to make input value uniqued!
-					"pgp_key":   fmt.Sprintf("pgp-%s", random.UniqueId()),
+					"pgp_key":   "keybase:freshairfreshliv",
 					"user_name": expected_user_name,
 				},
 			},
@@ -50,13 +52,13 @@ func TestIntegrationIAM2Groups(t *testing.T) {
 	terraform.InitAndApply(t, terraformOptions)
 
 	//Validate the created group
-	iamClient := aws.NewIamClient(t, "region")
+	iamClient := aws.NewIamClient(t, "us-east-2")
 
-	resp, err := iamClient.GetUser(&iam.GetGroupInput{
-		"GroupName" : expected_group_name
+	resp, err := iamClient.GetGroup(&iam.GetGroupInput {
+		GroupName : &expected_group_name,
 	})
 	if err != nil {
-		return "", err
+		return
 	}
 	actual_group_name := *resp.Group.GroupName
 	assert.Equal(t, expected_group_name, actual_group_name, "These 2 groups should be the same.")
