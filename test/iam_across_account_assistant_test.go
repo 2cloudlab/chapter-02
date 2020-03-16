@@ -9,6 +9,7 @@ import (
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/gruntwork-io/terratest/modules/test-structure"
 	"github.com/gruntwork-io/terratest/modules/aws"
+	"github.com/aws/aws-sdk-go/service/iam"
 )
 
 //Create full_access group with admin permissions and config with MFA option
@@ -49,7 +50,7 @@ func TestIntegrationIAM2Groups(t *testing.T) {
 	terraform.InitAndApply(t, terraformOptions)
 
 	//Validate the created group
-	client := aws.NewIamClient(t, "region")
+	iamClient := aws.NewIamClient(t, "region")
 
 	resp, err := iamClient.GetUser(&iam.GetGroupInput{
 		"GroupName" : expected_group_name
