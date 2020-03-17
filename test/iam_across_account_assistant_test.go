@@ -4,25 +4,25 @@ import (
 	"fmt"
 	"path/filepath"
 	"testing"
+	"time"
 
+	"github.com/aws/aws-sdk-go/service/iam"
+	"github.com/gruntwork-io/terratest/modules/aws"
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
-	"github.com/gruntwork-io/terratest/modules/test-structure"
-	"github.com/gruntwork-io/terratest/modules/aws"
-	"github.com/aws/aws-sdk-go/service/iam"
 
 	"github.com/stretchr/testify/assert"
 )
 
 //Create full_access group with admin permissions and config with MFA option
 func TestIntegrationIAM2Groups(t *testing.T) {
-	//Make this test case parallel which means it will not block other test cases
+	//1. Make this test case parallel which means it will not block other test cases
 	t.Parallel()
-	//Copy folder "../" to a tmp folder and return the tmp path of "examples"
+	//2. Copy folder "../" to a tmp folder and return the tmp path of "examples"
 	examplesFolder := test_structure.CopyTerraformFolderToTemp(t, "../", "examples")
 	iam_across_account_assistantFolder := filepath.Join(examplesFolder, "iam_across_account_assistant")
 
-	//Create terraform options which is passed to terraform module
+	//3. Create terraform options which is passed to terraform module
 	expected_group_name := "full_access"
 	expected_user_name := fmt.Sprintf("username-%s", random.UniqueId())
 	user_groups := []map[string]interface{}{
@@ -43,19 +43,25 @@ func TestIntegrationIAM2Groups(t *testing.T) {
 			"should_require_mfa": true,
 			"user_groups":        user_groups,
 		},
+		// Retry up to 3 times, with 5 seconds between retries, on known errors
+		MaxRetries:         3,
+		TimeBetweenRetries: 5 * time.Second,
+		RetryableTerraformErrors: map[string]string{
+			"RequestError: send request failed": "Throttling issue?",
+		},
 	}
 
-	//Something like finally in try...catch
+	//4. Something like finally in try...catch
 	defer terraform.Destroy(t, terraformOptions)
 
-	//Something like terraform init and terraform apply
+	//5. Something like terraform init and terraform apply
 	terraform.InitAndApply(t, terraformOptions)
 
-	//Validate the created group
+	//6. Validate the created group
 	iamClient := aws.NewIamClient(t, "us-east-2")
 
-	resp, err := iamClient.GetGroup(&iam.GetGroupInput {
-		GroupName : &expected_group_name,
+	resp, err := iamClient.GetGroup(&iam.GetGroupInput{
+		GroupName: &expected_group_name,
 	})
 	if err != nil {
 		return
