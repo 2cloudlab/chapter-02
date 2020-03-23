@@ -47,3 +47,19 @@ module "iam_roles" {
   source        = "../iam_roles"
   role_policies = module.iam_policies.role_policies_map
 }
+
+resource "aws_organizations_organization" "org" {
+  count = var.create_organization ? 1 : 0
+  aws_service_access_principals = [
+    "cloudtrail.amazonaws.com",
+    "config.amazonaws.com",
+  ]
+
+  feature_set = "ALL"
+}
+
+resource "aws_organizations_account" "accounts" {
+  for_each = var.child_accounts
+  name  = each.key
+  email = each.value.email
+}

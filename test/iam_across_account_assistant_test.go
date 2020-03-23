@@ -73,3 +73,33 @@ func TestIntegrationIAM2Groups(t *testing.T) {
 	actual_user_name := *resp.Users[0].UserName
 	assert.Equal(t, expected_user_name, actual_user_name, "These 2 user names should be the same.")
 }
+
+func TestIntegrationOrganization(t *testing.T) {
+	//1. Make this test case parallel which means it will not block other test cases
+	t.Parallel()
+	//2. Copy folder "../" to a tmp folder and return the tmp path of "examples"
+	examplesFolder := test_structure.CopyTerraformFolderToTemp(t, "../", "examples")
+	iam_across_account_assistantFolder := filepath.Join(examplesFolder, "iam_across_account_assistant")
+
+	account_1 := map[string]interface{}{
+		"email": "test1@2cloudlab.com",
+	}
+	terraformOptions := &terraform.Options{
+		TerraformDir: iam_across_account_assistantFolder,
+		Vars: map[string]interface{}{
+			"create_organization": true,
+			"child_accounts": map[string]interface{}{
+				"security": account_1,
+			},
+		},
+		// Retry up to 3 times, with 5 seconds between retries, on known errors
+		MaxRetries:         3,
+		TimeBetweenRetries: 5 * time.Second,
+	}
+
+	//4. Something like finally in try...catch
+	defer terraform.Destroy(t, terraformOptions)
+
+	//5. Something like terraform init and terraform apply
+	terraform.InitAndApply(t, terraformOptions)
+}

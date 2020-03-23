@@ -26,3 +26,19 @@ variable "user_groups" {
   }))
   default = []
 }
+
+variable "child_accounts" {
+  description = ""
+  type = map(object(
+    {
+      email = string
+    }
+  ))
+  default = {}
+}
+
+variable "create_organization" {
+  description = "Flag indicating whether the organization should be created."
+  type        = bool
+  default = false
+}
