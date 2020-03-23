@@ -33,6 +33,7 @@ func TestIntegrationIAM2Groups(t *testing.T) {
 					//Use random.UniqueId() to make input value uniqued!
 					"pgp_key":   "keybase:freshairfreshliv",
 					"user_name": expected_user_name,
+					"create_access_key": true,
 				},
 			},
 		},

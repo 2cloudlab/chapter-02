@@ -8,6 +8,8 @@ output "user_login_keys" {
     user_name => {
       encrypted_password = profile.encrypted_password
       group = local.user_profile_group_map[user_name].group_name
+      access_key_id = aws_iam_access_key.credentials[user_name].id
+      encrypted_secret_access_key = aws_iam_access_key.credentials[user_name].encrypted_secret
     }
   }
 }

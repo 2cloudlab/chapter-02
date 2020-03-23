@@ -73,6 +73,16 @@ resource "aws_iam_user" "users" {
   name = each.key
 }
 
+resource "aws_iam_access_key" "credentials" {
+  for_each = {
+    for user_name, user_instance in aws_iam_user.users:
+    user_name => user_instance
+    if local.user_profile_group_map[user_name].create_access_key
+  }
+  user    = each.key
+  pgp_key = local.user_profile_group_map[each.key].pgp_key
+}
+
 /*
 pgp_key is encrypted and encoded by base-64, or keybase:<user_name>, whoes user_name is registered from keybase.io.
 

@@ -19,6 +19,7 @@ variable "user_groups" {
         user_profiles = list(object({
             pgp_key = string
             user_name = string
+            create_access_key = bool
             }))
     }))
   default = []
@@ -28,7 +29,8 @@ variable "user_groups" {
     user_profiles = [
       {
         user_name = "Jim",
-        pgp_key   = "keybase:freshairfreshliv"
+        pgp_key   = "keybase:freshairfreshliv",
+        create_access_key = true
       }
     ]
   }]
