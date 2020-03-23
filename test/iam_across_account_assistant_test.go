@@ -82,15 +82,16 @@ func TestIntegrationOrganization(t *testing.T) {
 	iam_across_account_assistantFolder := filepath.Join(examplesFolder, "iam_across_account_assistant")
 
 	account_1 := map[string]interface{}{
-		"email": "test1@2cloudlab.com",
+		"email": "test2@2cloudlab.com",
+	}
+	child_accounts := map[string]interface{}{
+		"security": account_1,
 	}
 	terraformOptions := &terraform.Options{
 		TerraformDir: iam_across_account_assistantFolder,
 		Vars: map[string]interface{}{
-			"create_organization": true,
-			"child_accounts": map[string]interface{}{
-				"security": account_1,
-			},
+			"create_organization": false,
+			"child_accounts": child_accounts,
 		},
 		// Retry up to 3 times, with 5 seconds between retries, on known errors
 		MaxRetries:         3,
