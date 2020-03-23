@@ -56,12 +56,14 @@ locals{
           user_name = user_profile.user_name
           group_name = user_group.group_name
           pgp_key = user_profile.pgp_key
+          create_access_key = user_profile.create_access_key
         }
       ]
     ]):
     user.user_name => { 
       group_name = user.group_name,
-      pgp_key = user.pgp_key
+      pgp_key = user.pgp_key,
+      create_access_key = user.create_access_key
     }
   }
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/gruntwork-io/terratest/modules/aws"
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
+	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -31,8 +32,8 @@ func TestIntegrationIAM2Groups(t *testing.T) {
 			"user_profiles": []map[string]interface{}{
 				{
 					//Use random.UniqueId() to make input value uniqued!
-					"pgp_key":   "keybase:freshairfreshliv",
-					"user_name": expected_user_name,
+					"pgp_key":           "keybase:freshairfreshliv",
+					"user_name":         expected_user_name,
 					"create_access_key": true,
 				},
 			},
