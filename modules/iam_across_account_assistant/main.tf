@@ -48,14 +48,18 @@ module "iam_roles" {
   role_policies = module.iam_policies.role_policies_map
 }
 
+
+//Create organization and its related components such as organization account, unit ect.
+//Only used for master account
 locals {
-  create_organization = length(var.org_root_id) == 0
-  final_org_root_id = local.create_organization ? aws_organizations_organization.org[0].roots[0].id : var.org_root_id
+  org_root_id_from_master_account = length(lookup(aws_organizations_organization.organization_data, "roots", [])) == 0 ? "" : aws_organizations_organization.organization_data.roots[0].id
+  final_org_root_id = var.create_organization ? aws_organizations_organization.org[0].roots[0].id : local.org_root_id_from_master_account
 }
 
+data "aws_organizations_organization" "organization_data" {}
 
 resource "aws_organizations_organization" "org" {
-  count = local.create_organization ? 1 : 0
+  count = var.create_organization ? 1 : 0
   aws_service_access_principals = [
     "cloudtrail.amazonaws.com",
     "config.amazonaws.com",

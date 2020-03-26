@@ -15,7 +15,7 @@ module "iam_across_account_assistant" {
   across_account_access_role_arns_by_group       = var.across_account_access_role_arns_by_group
   user_groups = var.user_groups
   //organization related
-  org_root_id = var.org_root_id
+  create_organization = var.create_organization
   second_layer_child_accounts = var.second_layer_child_accounts
   third_layer_child_accounts = var.third_layer_child_accounts
   fourth_layer_child_accounts = var.fourth_layer_child_accounts

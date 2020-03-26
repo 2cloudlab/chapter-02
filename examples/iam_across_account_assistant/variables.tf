@@ -83,10 +83,10 @@ variable "fifth_layer_child_accounts" {
   }
 }
 
-variable "org_root_id" {
-  description = "Specific organization root id to its OU, or create an organization when leave it to default value."
-  type        = string
-  default = "r-1jux"
+variable "create_organization" {
+  description = "Set true for creating an organization in master account. Only set true in master account, false for child accounts."
+  type        = bool
+  default = false
 }
 
 variable "second_layer_ous" {
