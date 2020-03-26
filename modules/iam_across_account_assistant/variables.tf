@@ -19,8 +19,8 @@ variable "user_groups" {
   type = list(object({
     group_name = string
     user_profiles = list(object({
-      pgp_key   = string
-      user_name = string
+      pgp_key           = string
+      user_name         = string
       create_access_key = bool
     }))
   }))
@@ -41,11 +41,11 @@ variable "third_layer_child_accounts" {
   description = ""
   type = map(object(
     {
-      email = string
+      email     = string
       parent_id = string
     }
   ))
-  default = {    
+  default = {
   }
 }
 
@@ -53,11 +53,11 @@ variable "fourth_layer_child_accounts" {
   description = ""
   type = map(object(
     {
-      email = string
+      email     = string
       parent_id = string
     }
   ))
-  default = {    
+  default = {
   }
 }
 
@@ -65,28 +65,40 @@ variable "fifth_layer_child_accounts" {
   description = ""
   type = map(object(
     {
-      email = string
+      email     = string
       parent_id = string
     }
   ))
-  default = {    
+  default = {
   }
 }
 
 variable "create_organization" {
   description = "Set true for creating an organization in master account. Only set true in master account, false for child accounts."
   type        = bool
-  default = false
+  default     = false
 }
 
 variable "second_layer_ous" {
-  description =""
-  type = set(string)
-  default = []
+  description = <<EOF
+  Organization Units to be created on second layer.
+  It means the parent id of these organization units is root id in master account. 
+  The value in set is a unique name for each organization unit.
+  EOF
+  type        = set(string)
+  default     = []
 }
 
 variable "third_layer_ous" {
-  description =""
+  description = <<EOF
+  Organization Units to be created on third layer.
+  The key is the unique name of each organization unit.
+  The value are an object, which contains a property named parent_id.
+  The parent_id can be either of following cases:
+  1. The key of each organization unit in second_layer_ous
+  2. The id of exist organization unit in master account.
+  EOF
+
   type = map(object(
     {
       parent_id = string
@@ -97,7 +109,7 @@ variable "third_layer_ous" {
 }
 
 variable "fourth_layer_ous" {
-  description =""
+  description = ""
   type = map(object(
     {
       parent_id = string

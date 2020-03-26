@@ -37,11 +37,11 @@ locals {
   output_policy_map = {
     for k, v in local.aws_managed_policies_details :
     k => merge(
-      { 
-          for name, value in v :
-          name => value
-          if name != "policy_arn"
-      }, 
+      {
+        for name, value in v :
+        name => value
+        if name != "policy_arn"
+      },
       {
         policy_doc = data.aws_iam_policy_document.aws_managed_policies_with_mfa_option[k].json
     })

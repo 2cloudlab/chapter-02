@@ -1,5 +1,5 @@
 output "policy_map" {
-  value = local.output_policy_map
+  value       = local.output_policy_map
   description = "Contain AWS managed policies, Customer managed policies"
 }
 

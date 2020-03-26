@@ -14,6 +14,6 @@ variable "across_account_access_role_arns_by_group" {
 }
 
 variable "should_create_iam_group_full_access" {
-  type = bool
+  type    = bool
   default = false
 }

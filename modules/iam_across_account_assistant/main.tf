@@ -5,10 +5,10 @@ terraform {
 locals {
   self_account_groups = {
     full_access = {
-      iam_policy     = module.iam_policies.policy_map["AdministratorAccess"]
+      iam_policy = module.iam_policies.policy_map["AdministratorAccess"]
     }
     billing = {
-      iam_policy     = module.iam_policies.policy_map["Billing"]
+      iam_policy = module.iam_policies.policy_map["Billing"]
     }
   }
 }
@@ -52,8 +52,8 @@ module "iam_roles" {
 //Create organization and its related components such as organization account, unit ect.
 //Only used for master account
 locals {
-  org_root_id_from_master_account = length(lookup(aws_organizations_organization.organization_data, "roots", [])) == 0 ? "" : aws_organizations_organization.organization_data.roots[0].id
-  final_org_root_id = var.create_organization ? aws_organizations_organization.org[0].roots[0].id : local.org_root_id_from_master_account
+  org_root_id_from_master_account = length(lookup(data.aws_organizations_organization.organization_data, "roots", [])) == 0 ? "" : data.aws_organizations_organization.organization_data.roots[0].id
+  final_org_root_id               = var.create_organization ? aws_organizations_organization.org[0].roots[0].id : local.org_root_id_from_master_account
 }
 
 data "aws_organizations_organization" "organization_data" {}
@@ -69,46 +69,46 @@ resource "aws_organizations_organization" "org" {
 }
 
 resource "aws_organizations_organizational_unit" "second_layer_ous" {
-  for_each = var.second_layer_ous
-  name = each.key
+  for_each  = var.second_layer_ous
+  name      = each.key
   parent_id = local.final_org_root_id
 }
 
 resource "aws_organizations_organizational_unit" "third_layer_ous" {
-  for_each = var.third_layer_ous
-  name = each.key
+  for_each  = var.third_layer_ous
+  name      = each.key
   parent_id = length(lookup(aws_organizations_organizational_unit.second_layer_ous, each.value.parent_id, {})) == 0 ? each.value.parent_id : aws_organizations_organizational_unit.second_layer_ous[each.value.parent_id].id
 }
 
 resource "aws_organizations_organizational_unit" "fourth_layer_ous" {
-  for_each = var.fourth_layer_ous
-  name = each.key
+  for_each  = var.fourth_layer_ous
+  name      = each.key
   parent_id = length(lookup(aws_organizations_organizational_unit.third_layer_ous, each.value.parent_id, {})) == 0 ? each.value.parent_id : aws_organizations_organizational_unit.third_layer_ous[each.value.parent_id].id
 }
 
 resource "aws_organizations_account" "second_layer_accounts" {
   for_each = var.second_layer_child_accounts
-  name  = each.key
-  email = each.value.email
+  name     = each.key
+  email    = each.value.email
 }
 
 resource "aws_organizations_account" "third_layer_accounts" {
-  for_each = var.third_layer_child_accounts
-  name  = each.key
-  email = each.value.email
+  for_each  = var.third_layer_child_accounts
+  name      = each.key
+  email     = each.value.email
   parent_id = length(lookup(aws_organizations_organizational_unit.second_layer_ous, each.value.parent_id, {})) == 0 ? each.value.parent_id : aws_organizations_organizational_unit.second_layer_ous[each.value.parent_id].id
 }
 
 resource "aws_organizations_account" "fourth_layer_accounts" {
-  for_each = var.fourth_layer_child_accounts
-  name  = each.key
-  email = each.value.email
+  for_each  = var.fourth_layer_child_accounts
+  name      = each.key
+  email     = each.value.email
   parent_id = length(lookup(aws_organizations_organizational_unit.third_layer_ous, each.value.parent_id, {})) == 0 ? each.value.parent_id : aws_organizations_organizational_unit.third_layer_ous[each.value.parent_id].id
 }
 
 resource "aws_organizations_account" "fifth_layer_accounts" {
-  for_each = var.fifth_layer_child_accounts
-  name  = each.key
-  email = each.value.email
+  for_each  = var.fifth_layer_child_accounts
+  name      = each.key
+  email     = each.value.email
   parent_id = length(lookup(aws_organizations_organizational_unit.fourth_layer_ous, each.value.parent_id, {})) == 0 ? each.value.parent_id : aws_organizations_organizational_unit.fourth_layer_ous[each.value.parent_id].id
 }
