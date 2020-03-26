@@ -27,7 +27,7 @@ variable "user_groups" {
   default = []
 }
 
-variable "child_accounts" {
+variable "second_layer_child_accounts" {
   description = ""
   type = map(object(
     {
@@ -37,8 +37,72 @@ variable "child_accounts" {
   default = {}
 }
 
-variable "create_organization" {
-  description = "Flag indicating whether the organization should be created."
-  type        = bool
-  default = false
+variable "third_layer_child_accounts" {
+  description = ""
+  type = map(object(
+    {
+      email = string
+      parent_id = string
+    }
+  ))
+  default = {    
+  }
+}
+
+variable "fourth_layer_child_accounts" {
+  description = ""
+  type = map(object(
+    {
+      email = string
+      parent_id = string
+    }
+  ))
+  default = {    
+  }
+}
+
+variable "fifth_layer_child_accounts" {
+  description = ""
+  type = map(object(
+    {
+      email = string
+      parent_id = string
+    }
+  ))
+  default = {    
+  }
+}
+
+variable "org_root_id" {
+  description = "Specific organization root id to its OU, or create an organization when leave it to default value."
+  type        = string
+  default = ""
+}
+
+variable "second_layer_ous" {
+  description =""
+  type = set(string)
+  default = []
+}
+
+variable "third_layer_ous" {
+  description =""
+  type = map(object(
+    {
+      parent_id = string
+    }
+  ))
+  default = {
+  }
+}
+
+variable "fourth_layer_ous" {
+  description =""
+  type = map(object(
+    {
+      parent_id = string
+    }
+  ))
+  default = {
+  }
 }

@@ -48,8 +48,14 @@ module "iam_roles" {
   role_policies = module.iam_policies.role_policies_map
 }
 
+locals {
+  create_organization = length(var.org_root_id) == 0
+  final_org_root_id = local.create_organization ? aws_organizations_organization.org[0].roots[0].id : var.org_root_id
+}
+
+
 resource "aws_organizations_organization" "org" {
-  count = var.create_organization ? 1 : 0
+  count = local.create_organization ? 1 : 0
   aws_service_access_principals = [
     "cloudtrail.amazonaws.com",
     "config.amazonaws.com",
@@ -58,8 +64,47 @@ resource "aws_organizations_organization" "org" {
   feature_set = "ALL"
 }
 
-resource "aws_organizations_account" "accounts" {
-  for_each = var.child_accounts
+resource "aws_organizations_organizational_unit" "second_layer_ous" {
+  for_each = var.second_layer_ous
+  name = each.key
+  parent_id = local.final_org_root_id
+}
+
+resource "aws_organizations_organizational_unit" "third_layer_ous" {
+  for_each = var.third_layer_ous
+  name = each.key
+  parent_id = length(lookup(aws_organizations_organizational_unit.second_layer_ous, each.value.parent_id, {})) == 0 ? each.value.parent_id : aws_organizations_organizational_unit.second_layer_ous[each.value.parent_id].id
+}
+
+resource "aws_organizations_organizational_unit" "fourth_layer_ous" {
+  for_each = var.fourth_layer_ous
+  name = each.key
+  parent_id = length(lookup(aws_organizations_organizational_unit.third_layer_ous, each.value.parent_id, {})) == 0 ? each.value.parent_id : aws_organizations_organizational_unit.third_layer_ous[each.value.parent_id].id
+}
+
+resource "aws_organizations_account" "second_layer_accounts" {
+  for_each = var.second_layer_child_accounts
   name  = each.key
   email = each.value.email
+}
+
+resource "aws_organizations_account" "third_layer_accounts" {
+  for_each = var.third_layer_child_accounts
+  name  = each.key
+  email = each.value.email
+  parent_id = length(lookup(aws_organizations_organizational_unit.second_layer_ous, each.value.parent_id, {})) == 0 ? each.value.parent_id : aws_organizations_organizational_unit.second_layer_ous[each.value.parent_id].id
+}
+
+resource "aws_organizations_account" "fourth_layer_accounts" {
+  for_each = var.fourth_layer_child_accounts
+  name  = each.key
+  email = each.value.email
+  parent_id = length(lookup(aws_organizations_organizational_unit.third_layer_ous, each.value.parent_id, {})) == 0 ? each.value.parent_id : aws_organizations_organizational_unit.third_layer_ous[each.value.parent_id].id
+}
+
+resource "aws_organizations_account" "fifth_layer_accounts" {
+  for_each = var.fifth_layer_child_accounts
+  name  = each.key
+  email = each.value.email
+  parent_id = length(lookup(aws_organizations_organizational_unit.fourth_layer_ous, each.value.parent_id, {})) == 0 ? each.value.parent_id : aws_organizations_organizational_unit.fourth_layer_ous[each.value.parent_id].id
 }

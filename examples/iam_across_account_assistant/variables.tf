@@ -37,7 +37,7 @@ variable "user_groups" {
   */
 }
 
-variable "child_accounts" {
+variable "second_layer_child_accounts" {
   description = ""
   type = map(object(
     {
@@ -47,8 +47,81 @@ variable "child_accounts" {
   default = {}
 }
 
-variable "create_organization" {
-  description = "Flag indicating whether the organization should be created."
-  type        = bool
-  default = false
+variable "third_layer_child_accounts" {
+  description = ""
+  type = map(object(
+    {
+      email = string
+      parent_id = string
+    }
+  ))
+  default = {    
+  }
+}
+
+variable "fourth_layer_child_accounts" {
+  description = ""
+  type = map(object(
+    {
+      email = string
+      parent_id = string
+    }
+  ))
+  default = {    
+  }
+}
+
+variable "fifth_layer_child_accounts" {
+  description = ""
+  type = map(object(
+    {
+      email = string
+      parent_id = string
+    }
+  ))
+  default = {    
+  }
+}
+
+variable "org_root_id" {
+  description = "Specific organization root id to its OU, or create an organization when leave it to default value."
+  type        = string
+  default = "r-1jux"
+}
+
+variable "second_layer_ous" {
+  description =""
+  type = set(string)
+  default = ["AdBU", "LBU"]
+}
+
+variable "third_layer_ous" {
+  description =""
+  type = map(object(
+    {
+      parent_id = string
+    }
+  ))
+  default = {
+    AdBU_Sale = {
+      parent_id = "AdBU"
+    },
+    LBU_Mark = {
+      parent_id = "LBU"
+    },
+    GameBU_HR = {
+      parent_id = "ou-1jux-lhr1fhdl"
+    }
+  }
+}
+
+variable "fourth_layer_ous" {
+  description =""
+  type = map(object(
+    {
+      parent_id = string
+    }
+  ))
+  default = {
+  }
 }

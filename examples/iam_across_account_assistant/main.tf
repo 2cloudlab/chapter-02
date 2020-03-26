@@ -14,6 +14,14 @@ module "iam_across_account_assistant" {
   should_require_mfa                             = var.should_require_mfa
   across_account_access_role_arns_by_group       = var.across_account_access_role_arns_by_group
   user_groups = var.user_groups
-  create_organization = var.create_organization
-  child_accounts = var.child_accounts
+  //organization related
+  org_root_id = var.org_root_id
+  second_layer_child_accounts = var.second_layer_child_accounts
+  third_layer_child_accounts = var.third_layer_child_accounts
+  fourth_layer_child_accounts = var.fourth_layer_child_accounts
+  fifth_layer_child_accounts = var.fifth_layer_child_accounts
+
+  second_layer_ous = var.second_layer_ous
+  third_layer_ous = var.third_layer_ous
+  fourth_layer_ous = var.fourth_layer_ous
 }
