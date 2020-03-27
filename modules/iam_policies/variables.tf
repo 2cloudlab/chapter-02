@@ -10,6 +10,11 @@ variable "allow_read_only_access_from_other_account_arns" {
 }
 
 variable "across_account_access_role_arns_by_group" {
+  description =<<EOF
+  Create groups with sts:AssumeRole permissions to roles in other accounts.
+  The key is the group name.
+  The value is a list of role arns in other accounts.
+  EOF
   type    = map(list(string))
   default = {}
 }

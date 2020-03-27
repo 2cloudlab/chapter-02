@@ -64,7 +64,7 @@ data "aws_iam_policy" "read_only_access_iam_policy_for_role" {
   arn = "arn:aws:iam::aws:policy/ReadOnlyAccess"
 }
 
-// an IAM policy which is attached to group, this group is used for assuming roles in other accounts
+// an IAM policy which is attached to a group, this group is used for assuming roles in other accounts
 data "aws_iam_policy_document" "iam_policy_attach_to_group" {
   for_each = var.across_account_access_role_arns_by_group
   statement {
