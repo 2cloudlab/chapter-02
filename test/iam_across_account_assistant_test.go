@@ -70,6 +70,9 @@ func TestIntegrationIAM2Groups(t *testing.T) {
 	assert.Equal(t, expected_user_name, actual_user_name, "These 2 user names should be the same.")
 }
 
+// Create organization, organization unit(or ou), accounts as a whole
+// Note: accounts can't be removed from organization or organization unit unless payment method is added to these accounts.
+// So organization test can't be automatic.
 func TestIntegrationOrganization(t *testing.T) {
 	//1. Make this test case parallel which means it will not block other test cases
 	t.Parallel()
