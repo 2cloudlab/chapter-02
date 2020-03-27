@@ -13,7 +13,7 @@ module "iam_across_account_assistant" {
   allow_read_only_access_from_other_account_arns = var.allow_read_only_access_from_other_account_arns
   should_require_mfa                             = var.should_require_mfa
   across_account_access_role_arns_by_group       = var.across_account_access_role_arns_by_group
-  user_groups                                    = var.user_groups
+  iam_users                                    = var.iam_users
   //organization related
   create_organization         = var.create_organization
   second_layer_child_accounts = var.second_layer_child_accounts

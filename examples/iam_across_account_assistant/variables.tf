@@ -13,28 +13,14 @@ variable "across_account_access_role_arns_by_group" {
   default = {}
 }
 
-variable "user_groups" {
-  type = list(object({
-    group_name = string
-    user_profiles = list(object({
-      pgp_key           = string
-      user_name         = string
-      create_access_key = bool
+variable "iam_users" {
+  description = ""
+  type = map(object({
+    group_name_arr = list(string)
+    pgp_key           = string
+    create_access_key = bool
     }))
-  }))
-  default = []
-  /*
-  [{
-    group_name = "billing"
-    user_profiles = [
-      {
-        user_name = "Jim",
-        pgp_key   = "keybase:freshairfreshliv",
-        create_access_key = true
-      }
-    ]
-  }]
-  */
+  default = {}
 }
 
 variable "second_layer_child_accounts" {
@@ -92,7 +78,7 @@ variable "create_organization" {
 variable "second_layer_ous" {
   description = ""
   type        = set(string)
-  default     = ["AdBU", "LBU"]
+  default     = []
 }
 
 variable "third_layer_ous" {
@@ -103,15 +89,6 @@ variable "third_layer_ous" {
     }
   ))
   default = {
-    AdBU_Sale = {
-      parent_id = "AdBU"
-    },
-    LBU_Mark = {
-      parent_id = "LBU"
-    },
-    GameBU_HR = {
-      parent_id = "ou-1jux-lhr1fhdl"
-    }
   }
 }
 

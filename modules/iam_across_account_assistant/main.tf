@@ -26,6 +26,14 @@ Create an IAM group and attach a policy to it.
 <policy_doc> is retrived from iam_policies module which defines a map of policy documents.
 The key of the map is <policy_name> and the value of the map is a policy document.
 */
+
+locals {
+  groups_to_be_created = distinct(flatten([
+    for name, user in var.iam_users: user.group_name_arr
+  ]))
+}
+
+
 module "iam_groups" {
   source = "../iam_groups"
 
@@ -36,10 +44,10 @@ module "iam_groups" {
   self_account_groups = {
     for group_name, v in local.self_account_groups :
     group_name => v.iam_policy
-    if contains(var.user_groups[*].group_name, group_name)
+    if contains(local.groups_to_be_created, group_name)
   }
 
-  user_groups = var.user_groups
+  iam_users = var.iam_users
 }
 
 //Create roles according to the predefined Permissions policies for IAM roles

@@ -14,17 +14,14 @@ variable "across_account_access_role_arns_by_group" {
   default = {}
 }
 
-variable "user_groups" {
-  description = "A list of groups with corresponding users in each group."
-  type = list(object({
-    group_name = string
-    user_profiles = list(object({
-      pgp_key           = string
-      user_name         = string
-      create_access_key = bool
+variable "iam_users" {
+  description = ""
+  type = map(object({
+    group_name_arr = list(string)
+    pgp_key           = string
+    create_access_key = bool
     }))
-  }))
-  default = []
+  default = {}
 }
 
 variable "second_layer_child_accounts" {

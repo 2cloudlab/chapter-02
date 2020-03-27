@@ -26,16 +26,12 @@ func TestIntegrationIAM2Groups(t *testing.T) {
 	//3. Create terraform options which is passed to terraform module
 	expected_group_name := "full_access"
 	expected_user_name := fmt.Sprintf("username-%s", random.UniqueId())
-	user_groups := []map[string]interface{}{
-		{
-			"group_name": expected_group_name,
-			"user_profiles": []map[string]interface{}{
-				{
-					//Use random.UniqueId() to make input value uniqued!
-					"pgp_key":           "keybase:freshairfreshliv",
-					"user_name":         expected_user_name,
-					"create_access_key": true,
-				},
+	iam_users := map[string]interface{}{
+		expected_user_name: map[string]interface{}{
+			"pgp_key":           "keybase:freshairfreshliv",
+			"create_access_key": true,
+			"group_name_arr": []string{
+				expected_group_name,
 			},
 		},
 	}
@@ -43,7 +39,7 @@ func TestIntegrationIAM2Groups(t *testing.T) {
 		TerraformDir: iam_across_account_assistantFolder,
 		Vars: map[string]interface{}{
 			"should_require_mfa": true,
-			"user_groups":        user_groups,
+			"iam_users":          iam_users,
 		},
 		// Retry up to 3 times, with 5 seconds between retries, on known errors
 		MaxRetries:         3,
@@ -91,7 +87,7 @@ func TestIntegrationOrganization(t *testing.T) {
 		TerraformDir: iam_across_account_assistantFolder,
 		Vars: map[string]interface{}{
 			"create_organization": false,
-			"child_accounts": child_accounts,
+			"child_accounts":      child_accounts,
 		},
 		// Retry up to 3 times, with 5 seconds between retries, on known errors
 		MaxRetries:         3,

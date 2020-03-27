@@ -48,28 +48,8 @@ resource "aws_iam_group_policy" "inline_policis" {
 Create multiple users
 */
 
-locals {
-  user_profile_group_map = {
-    for user in flatten([
-      for user_group in var.user_groups : [
-        for user_profile in user_group.user_profiles : {
-          user_name         = user_profile.user_name
-          group_name        = user_group.group_name
-          pgp_key           = user_profile.pgp_key
-          create_access_key = user_profile.create_access_key
-        }
-      ]
-    ]) :
-    user.user_name => {
-      group_name        = user.group_name,
-      pgp_key           = user.pgp_key,
-      create_access_key = user.create_access_key
-    }
-  }
-}
-
 resource "aws_iam_user" "users" {
-  for_each = local.user_profile_group_map
+  for_each = var.iam_users
   //When destroying this user, destroy even if it has non-Terraform-managed IAM access keys, login profile or MFA devices. Without force_destroy a user with non-Terraform-managed access keys and login profile will fail to be destroyed.
   force_destroy = true
   name          = each.key
@@ -79,10 +59,10 @@ resource "aws_iam_access_key" "credentials" {
   for_each = {
     for user_name, user_instance in aws_iam_user.users :
     user_name => user_instance
-    if local.user_profile_group_map[user_name].create_access_key
+    if var.iam_users[user_name].create_access_key
   }
   user    = each.key
-  pgp_key = local.user_profile_group_map[each.key].pgp_key
+  pgp_key = var.iam_users[each.key].pgp_key
 }
 
 /*
@@ -99,17 +79,16 @@ The command will output a plain text, which is the password for logining to AWS
 resource "aws_iam_user_login_profile" "user_login_profiles" {
   for_each = aws_iam_user.users
   user     = each.key
-  pgp_key  = local.user_profile_group_map[each.key].pgp_key
+  pgp_key  = var.iam_users[each.key].pgp_key
 }
 
 resource "aws_iam_user_group_membership" "user_group_membership" {
   for_each = aws_iam_user.users
   user     = each.key
 
-  groups = [
-    #user name -> group name -> group resource -> group name
-    #this method can make user_group_membership depend on group resource
-    #after establish this relation, it make sure to destroy group resource before destroying user_group_membership resource
-    aws_iam_group.groups[local.user_profile_group_map[each.key].group_name].name,
+  groups = var.iam_users[each.key].group_name_arr
+
+  depends_on = [
+    aws_iam_group.groups,
   ]
 }

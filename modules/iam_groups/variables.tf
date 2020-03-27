@@ -16,15 +16,12 @@ variable "across_account_groups" {
 }
 
 
-variable "user_groups" {
+variable "iam_users" {
   description = ""
-  type = list(object({
-    group_name = string
-    user_profiles = list(object({
-      pgp_key           = string
-      user_name         = string
-      create_access_key = bool
+  type = map(object({
+    group_name_arr = list(string)
+    pgp_key           = string
+    create_access_key = bool
     }))
-  }))
-  default = []
+  default = {}
 }
