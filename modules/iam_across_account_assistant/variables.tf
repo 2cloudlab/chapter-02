@@ -1,3 +1,19 @@
+//-------------------------------------------------------------------------
+// Use this module to create across accounts strategy and organization related components.
+//
+// Set var.should_require_mfa to true to enable MFA for all policies.
+//
+// Groups to be created: 
+//     1. full_access
+//     2. billing
+//
+// Roles to be created:
+//     1. allow_read_only_access_from_other_accounts
+//     2. allow_full_access_from_other_accounts
+//     3. allow_billing_access_from_other_accounts
+// 
+//-------------------------------------------------------------------------
+
 variable "should_require_mfa" {
   description = <<EOF
   Should we require that all IAM Users use Multi-Factor Authentication for both AWS API calls and the AWS Web Console? (true or false)
@@ -74,7 +90,7 @@ variable "iam_users" {
   default = {
     jane = {
       group_name_arr = ["full_access", "billing",]
-      pgp_key = "key:jane"
+      pgp_key = "keybase:jane"
       create_access_key = true
     }
   }
