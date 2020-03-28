@@ -8,8 +8,8 @@ output "user_login_keys" {
     user_name => {
       encrypted_password          = profile.encrypted_password
       group                       = var.iam_users[user_name].group_name_arr
-      access_key_id               = aws_iam_access_key.credentials[user_name].id
-      encrypted_secret_access_key = aws_iam_access_key.credentials[user_name].encrypted_secret
+      access_key_id               = lookup(aws_iam_access_key.credentials,"user_name", { id = ""}).id
+      encrypted_secret_access_key = lookup(aws_iam_access_key.credentials,"user_name", { encrypted_secret = ""}).encrypted_secret
     }
   }
 }

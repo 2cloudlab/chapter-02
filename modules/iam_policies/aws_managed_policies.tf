@@ -22,14 +22,12 @@ locals {
     )
   }
   aws_managed_policies_details = {
-    AdministratorAccess = {
-      policy_arn         = "arn:aws:iam::aws:policy/AdministratorAccess",
-      policy_name        = "AdministratorAccess",
+    full_access = {
+      policy_arn         = "arn:aws:iam::aws:policy/AdministratorAccess"
       policy_description = "Same as AWS Managed AdministratorAccess policy, but can config with MFA."
     }
-    Billing = {
-      policy_arn         = "arn:aws:iam::aws:policy/job-function/Billing",
-      policy_name        = "Billing",
+    billing = {
+      policy_arn         = "arn:aws:iam::aws:policy/job-function/Billing"
       policy_description = "Same as AWS Managed Billing policy, but can config with MFA."
     }
   }
@@ -44,6 +42,7 @@ locals {
       },
       {
         policy_doc = data.aws_iam_policy_document.aws_managed_policies_with_mfa_option[k].json
+        policy_name = k
     })
   }
 }

@@ -2,22 +2,12 @@ terraform {
   required_version = "= 0.12.19"
 }
 
-locals {
-  self_account_groups = {
-    full_access = {
-      iam_policy = module.iam_policies.policy_map["AdministratorAccess"]
-    }
-    billing = {
-      iam_policy = module.iam_policies.policy_map["Billing"]
-    }
-  }
-}
-
-
 module "iam_policies" {
   source                                         = "../iam_policies"
   should_require_mfa                             = var.should_require_mfa
   allow_read_only_access_from_other_account_arns = var.allow_read_only_access_from_other_account_arns
+  allow_full_access_from_other_account_arns = var.allow_full_access_from_other_account_arns
+  allow_billing_access_from_other_account_arns = var.allow_billing_access_from_other_account_arns
   across_account_access_role_arns_by_group       = var.across_account_access_role_arns_by_group
 }
 
@@ -42,9 +32,8 @@ module "iam_groups" {
     k => v.json
   }
   self_account_groups = {
-    for group_name, v in local.self_account_groups :
-    group_name => v.iam_policy
-    if contains(local.groups_to_be_created, group_name)
+    for group_name in local.groups_to_be_created :
+    group_name => module.iam_policies.policy_map[group_name]
   }
 
   iam_users = var.iam_users
