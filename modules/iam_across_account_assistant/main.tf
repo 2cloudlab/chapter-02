@@ -6,8 +6,8 @@ module "iam_policies" {
   source                                         = "../iam_policies"
   should_require_mfa                             = var.should_require_mfa
   allow_read_only_access_from_other_account_arns = var.allow_read_only_access_from_other_account_arns
-  allow_full_access_from_other_account_arns = var.allow_full_access_from_other_account_arns
-  allow_billing_access_from_other_account_arns = var.allow_billing_access_from_other_account_arns
+  allow_full_access_from_other_account_arns      = var.allow_full_access_from_other_account_arns
+  allow_billing_access_from_other_account_arns   = var.allow_billing_access_from_other_account_arns
   across_account_access_role_arns_by_group       = var.across_account_access_role_arns_by_group
 }
 
@@ -19,7 +19,7 @@ The key of the map is <policy_name> and the value of the map is a policy documen
 
 locals {
   groups_to_be_created = distinct(flatten([
-    for name, user in var.iam_users: user.group_name_arr
+    for name, user in var.iam_users : user.group_name_arr
   ]))
 }
 

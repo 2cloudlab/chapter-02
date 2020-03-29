@@ -15,25 +15,26 @@ locals {
       type                   = "AWS"
       identifiers            = var.allow_read_only_access_from_other_account_arns
       iam_policy_description = "Allow read-only access to all resources"
-      iam_policy             = data.aws_iam_policy.read_only_access_iam_policy_for_role.policy
+      policy_arn             = "arn:aws:iam::aws:policy/ReadOnlyAccess"
     },
     allow_full_access_from_other_accounts = {
-      type = "AWS"
-      identifiers = var.allow_full_access_from_other_account_arns
+      type                   = "AWS"
+      identifiers            = var.allow_full_access_from_other_account_arns
       iam_policy_description = "Allow full access to all resources."
-      iam_policy = data.aws_iam_policy.full_access_iam_policy_for_role.policy
+      policy_arn             = "arn:aws:iam::aws:policy/AdministratorAccess"
     },
     allow_billing_access_from_other_accounts = {
-      type = "AWS"
-      identifiers = var.allow_billing_access_from_other_account_arns
+      type                   = "AWS"
+      identifiers            = var.allow_billing_access_from_other_account_arns
       iam_policy_description = "Allow billing access to cost control panel."
-      iam_policy = data.aws_iam_policy.billing_access_iam_policy_for_role.policy
+      policy_arn             = "arn:aws:iam::aws:policy/job-function/Billing"
     },
   }
   role_policies_map = {
     for role_name, bind_policy in local.predefined_role_policies_map :
     role_name => merge(bind_policy, {
       iam_policy_name = role_name
+      iam_policy      = data.aws_iam_policy.iam_policy_for_roles[role_name].policy
     })
     if length(bind_policy.identifiers) != 0
   }
@@ -72,19 +73,10 @@ data "aws_iam_policy_document" "instance_assume_role_policies" {
   }
 }
 
-//read only access policy for a role
-data "aws_iam_policy" "read_only_access_iam_policy_for_role" {
-  arn = "arn:aws:iam::aws:policy/ReadOnlyAccess"
-}
-
-//full access policy for a role
-data "aws_iam_policy" "full_access_iam_policy_for_role" {
-  arn = "arn:aws:iam::aws:policy/AdministratorAccess"
-}
-
-//billing access policy for a role
-data "aws_iam_policy" "billing_access_iam_policy_for_role" {
-  arn = "arn:aws:iam::aws:policy/job-function/Billing"
+// AWS managed policies
+data "aws_iam_policy" "iam_policy_for_roles" {
+  for_each = local.predefined_role_policies_map
+  arn      = each.value.policy_arn
 }
 
 // an IAM policy which is attached to a group, this group is used for assuming roles in other accounts

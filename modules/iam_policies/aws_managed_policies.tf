@@ -30,6 +30,10 @@ locals {
       policy_arn         = "arn:aws:iam::aws:policy/job-function/Billing"
       policy_description = "Same as AWS Managed Billing policy, but can config with MFA."
     }
+    read_only = {
+      policy_arn         = "arn:aws:iam::aws:policy/ReadOnlyAccess"
+      policy_description = "Same as AWS Managed Billing policy, but can config with MFA."
+    }
   }
   //out-of-box IAM policies, which is used for attaching to groups
   output_policy_map = {
@@ -41,7 +45,7 @@ locals {
         if name != "policy_arn"
       },
       {
-        policy_doc = data.aws_iam_policy_document.aws_managed_policies_with_mfa_option[k].json
+        policy_doc  = data.aws_iam_policy_document.aws_managed_policies_with_mfa_option[k].json
         policy_name = k
     })
   }

@@ -11,8 +11,8 @@ provider "aws" {
 module "iam_across_account_assistant" {
   source                                         = "../../modules/iam_across_account_assistant"
   allow_read_only_access_from_other_account_arns = var.allow_read_only_access_from_other_account_arns
-  allow_full_access_from_other_account_arns = var.allow_full_access_from_other_account_arns
-  allow_billing_access_from_other_account_arns = var.allow_billing_access_from_other_account_arns
+  allow_full_access_from_other_account_arns      = var.allow_full_access_from_other_account_arns
+  allow_billing_access_from_other_account_arns   = var.allow_billing_access_from_other_account_arns
   should_require_mfa                             = var.should_require_mfa
   across_account_access_role_arns_by_group       = var.across_account_access_role_arns_by_group
   iam_users                                      = var.iam_users
