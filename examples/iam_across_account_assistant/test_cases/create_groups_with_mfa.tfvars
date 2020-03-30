@@ -1,7 +1,9 @@
 iam_users = {
   cloudtest = {
-    group_name_arr    = ["full_access", "billing"]
+    group_name_arr    = ["read_only",]
     pgp_key           = "keybase:freshairfreshliv"
-    create_access_key = true
+    create_access_key = false
   }
 }
+
+should_require_mfa = true

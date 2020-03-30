@@ -7,6 +7,55 @@ create multiple IAM groups.
 */
 
 # create multiple IAM groups
+locals {
+  _max_policy_size_in_bytes = 2044
+  _policy_name_to_policy_map = {
+    for group_name, policy in var.self_account_groups:
+    policy.policy_name => merge(policy,
+    {
+      "group_name" = group_name
+      policy_obj = jsondecode(policy.policy_doc)
+      number_of_policy = ceil(length(policy.policy_doc) / local._max_policy_size_in_bytes)
+    }
+    )
+  }
+  policy_name_to_policy_map = {
+    for policy in flatten(
+      [
+        for policy_name, policy_obj in local._policy_name_to_policy_map: [
+          for i in range(policy_obj.number_of_policy): merge(policy_obj, 
+          {
+            "policy_name" = format("%s%s", policy_name, policy_obj.number_of_policy == 1 ? "" : format("%d",i))
+            index = i
+            is_single_policy = policy_obj.number_of_policy == 1 ? true : false
+            action = policy_obj.number_of_policy == 1 ? [] : element(chunklist(
+              policy_obj.policy_obj.Statement[length(policy_obj.policy_obj.Statement) - 1].Action, ceil(
+                length(policy_obj.policy_obj.Statement[length(policy_obj.policy_obj.Statement) - 1].Action) / policy_obj.number_of_policy)),i)
+          })
+        ]
+      ]
+    ):
+    policy.policy_name => policy
+  }
+
+  final_policy_name_to_policy_map = {
+    for policy_name, policy_obj in local.policy_name_to_policy_map:
+    policy_name => merge(
+      policy_obj, {
+        policy_doc = policy_obj.is_single_policy ? policy_obj.policy_doc : jsonencode(
+          merge(policy_obj.policy_obj, {
+            Statement = concat(slice(policy_obj.policy_obj.Statement, 0, length(policy_obj.policy_obj.Statement) - 1), [
+              merge(policy_obj.policy_obj.Statement[length(policy_obj.policy_obj.Statement) - 1], {
+                Action = policy_obj.action
+              })
+            ])
+          })
+        )
+      }
+    )
+  }
+}
+
 resource "aws_iam_group" "groups" {
   for_each = var.self_account_groups
   name     = each.key
@@ -14,16 +63,16 @@ resource "aws_iam_group" "groups" {
 
 # create custom managed policies
 resource "aws_iam_policy" "custom_managed_policy" {
-  for_each    = var.self_account_groups
-  name        = each.value.policy_name
+  for_each    = local.final_policy_name_to_policy_map
+  name        = each.key
   description = each.value.policy_description
   policy      = each.value.policy_doc
 }
 
 # create attachment, it will attach policy to corresponsd group without affecting existed policies
 resource "aws_iam_group_policy_attachment" "group_attachment" {
-  for_each   = var.self_account_groups
-  group      = aws_iam_group.groups[each.key].name
+  for_each   = local.final_policy_name_to_policy_map
+  group      = aws_iam_group.groups[each.value.group_name].name
   policy_arn = aws_iam_policy.custom_managed_policy[each.key].arn
 }
 
